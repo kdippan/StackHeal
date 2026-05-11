@@ -1,0 +1,34 @@
+# Title: Fix: Failed to fetch (CORS) in Vercel Serverless Functions
+# Author: StackHeal Architect
+# Date: 2026-05-11
+# Canonical URL: https://stackheal.vercel.app/blog/fix-cors-vercel/
+
+## The Symptom
+Access to fetch at 'https://api.yourdomain.com/data' from origin 'https://frontend.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+
+## Root Cause
+When your frontend (hosted on one domain) tries to access your Vercel serverless function (hosted on another), the browser enforces the Same-Origin Policy. The browser sends a preflight `OPTIONS` request. If your Vercel function doesn't explicitly return headers allowing the domain, it kills the connection.
+
+## The Cure (Vanilla JS / Vercel Edge)
+Place this at the very top of your serverless function before executing database or processing logic:
+
+```javascript
+export default async function handler(req, res) {
+  // 1. Inject strict CORS headers into the response
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*'); // In production, specify '[https://yourfrontend.com](https://yourfrontend.com)'
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  // 2. Intercept the OPTIONS preflight request
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  // 3. Main Logic
+  res.status(200).json({ message: "API connected successfully." });
+}

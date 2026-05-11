@@ -4,18 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fix: Failed to fetch (CORS) in Vercel Serverless Functions | StackHeal</title>
-  <meta name="description" content="Immediate zero-dependency vanilla JS cure for the 'No Access-Control-Allow-Origin' CORS preflight error in Vercel Serverless and Edge deployments.">
   
-  <link rel="icon" type="image/svg+xml" href="/favicon/icon.svg">
+  <meta name="description" content="Immediate zero-dependency vanilla JS cure for the 'No Access-Control-Allow-Origin' CORS preflight error in Vercel Serverless and Edge deployments.">
+  <meta name="keywords" content="Vercel, CORS, Serverless Functions, Access-Control-Allow-Origin, Vanilla JS, API Edge">
+  <meta name="author" content="StackHeal Architect">
   
   <link rel="canonical" href="https://stackheal.vercel.app/blog/fix-cors-vercel/">
   <meta property="og:title" content="Fix: Failed to fetch (CORS) in Vercel Serverless Functions | StackHeal">
   <meta property="og:description" content="Immediate zero-dependency vanilla JS cure for the 'No Access-Control-Allow-Origin' CORS preflight error in Vercel Serverless and Edge deployments.">
   <meta property="og:image" content="https://stackheal.vercel.app/blog/fix-cors-vercel/ogg/stackheal.png">
   <meta property="og:url" content="https://stackheal.vercel.app/blog/fix-cors-vercel/">
+  <meta property="og:type" content="article">
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="alternate" type="text/plain" href="./llms.txt">
+  
+  <link rel="icon" type="image/svg+xml" href="/favicon/icon.svg">
   
   <link rel="stylesheet" href="/css/variables.css">
   <link rel="stylesheet" href="/css/glassmorphism.css">
@@ -53,6 +57,7 @@
       "name": "StackHeal Architect",
       "url": "https://github.com/stackheal"
     },
+    "datePublished": "2026-05-11",
     "mainEntity": {
       "@type": "Question",
       "name": "How do I fix the CORS 'Access-Control-Allow-Origin' error in Vercel serverless functions?",
@@ -65,13 +70,13 @@
   </script>
 
   <style>
-    /* Scoped Layout adjustments */
+    /* Layout Scoping */
     body { display: flex; flex-direction: column; min-height: 100vh; }
     .global-header { position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-radius: 0; border-top: none; border-left: none; border-right: none; }
     .brand-logo { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-code); font-weight: 700; font-size: 1.25rem; color: var(--text-primary); text-decoration: none; }
     .main-article { flex: 1; width: 100%; max-width: 56.25rem; margin: 0 auto; padding: 3rem 1rem; }
     .breadcrumbs { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 2rem; font-family: var(--font-code); }
-    h1 { font-size: 2rem; color: var(--text-primary); margin-bottom: 2rem; line-height: 1.2; }
+    h1 { font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem; line-height: 1.2; }
     h2 { font-size: 1.5rem; color: var(--accent-primary); margin: 2.5rem 0 1rem 0; }
     p { margin-bottom: 1.25rem; line-height: 1.7; }
     .svg-list { list-style: none; padding: 0; }
@@ -79,12 +84,15 @@
     .svg-bullet { flex-shrink: 0; margin-top: 0.25rem; color: var(--accent-primary); }
     .global-footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border-glass); font-size: 0.875rem; color: var(--text-muted); }
     
-    /* Comments UI Specifics */
+    /* Input & Comments */
     .glass-input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); color: var(--text-primary); padding: 0.75rem; border-radius: var(--radius-md); font-family: var(--font-body); }
     .glass-input:focus { outline: none; border-color: var(--accent-primary); }
     .comment-card { padding: 1rem; border-bottom: 1px solid var(--border-glass); }
     .comment-card:last-child { border-bottom: none; }
     .comment-meta { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-code); margin-bottom: 0.5rem; }
+    
+    /* Utility class for hiding SVGs securely */
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -110,6 +118,14 @@
 
     <article>
       <h1>Fix: Failed to fetch (CORS) in Vercel Serverless Functions</h1>
+      
+      <div style="margin-bottom: 2.5rem;">
+        <button id="copy-markdown-btn" class="glass-btn" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+          <svg id="md-icon-copy" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg id="md-icon-check" class="hidden" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="var(--status-cure)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span id="md-btn-text">Copy Page as Markdown</span>
+        </button>
+      </div>
 
       <h2>The Symptom</h2>
       <p>You deployed a serverless function to Vercel. Your frontend attempts an API fetch, but the browser strictly blocks the response. The network tab shows a failed <code>OPTIONS</code> request, and your terminal throws this policy violation:</p>
@@ -127,9 +143,12 @@
         <div class="code-container">
           <div class="code-header">
             <span class="language-label">javascript</span>
-            <button class="copy-btn" aria-label="Copy code"></button>
+            <button class="copy-btn snippet-copy-btn" aria-label="Copy code">
+              <svg class="snippet-icon-copy" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <svg class="snippet-icon-check hidden" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="var(--status-cure)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </button>
           </div>
-          <pre><code>export default async function handler(req, res) {
+          <pre><code id="cure-code-block">export default async function handler(req, res) {
   // 1. Inject strict CORS headers into the response
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*'); // Or specify 'https://yourfrontend.com'
@@ -168,7 +187,6 @@
         <p style="color: var(--text-muted); font-size: 0.875rem;">Loading logs...</p>
       </div>
     </section>
-
   </main>
 
   <footer class="global-footer">
@@ -178,28 +196,87 @@
   <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="dippanbhusal" data-description="Support me on Buy me a coffee!" data-message="Support StackHeal !" data-color="#5F7FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
 
   <script src="/js/theme.js"></script>
-  <script src="/js/code-copy.js"></script>
   <script src="/js/cookie-consent.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. DYNAMIC SLUG GENERATION: Grabs the folder name directly from the URL.
+      // --- 1. Dynamic Post Slug ---
       const pathArray = window.location.pathname.split('/').filter(p => p);
-      const DYNAMIC_SLUG = pathArray.pop() || 'home'; 
+      const DYNAMIC_SLUG = pathArray.pop() || 'fix-cors-vercel'; // Fallback for local testing
 
       const commentsContainer = document.getElementById('comments-container');
       const commentForm = document.getElementById('comment-form');
       const submitBtn = document.getElementById('submit-comment-btn');
 
+      // --- 2. CSP-Safe Code Snippet Copy Logic ---
+      const snippetCopyBtn = document.querySelector('.snippet-copy-btn');
+      if (snippetCopyBtn) {
+        snippetCopyBtn.addEventListener('click', async () => {
+          const codeText = document.getElementById('cure-code-block').textContent;
+          try {
+            await navigator.clipboard.writeText(codeText);
+            
+            // Toggle SVGs using CSS to strictly avoid CSP TrustedHTML blocks
+            snippetCopyBtn.querySelector('.snippet-icon-copy').classList.add('hidden');
+            snippetCopyBtn.querySelector('.snippet-icon-check').classList.remove('hidden');
+
+            setTimeout(() => {
+              snippetCopyBtn.querySelector('.snippet-icon-copy').classList.remove('hidden');
+              snippetCopyBtn.querySelector('.snippet-icon-check').classList.add('hidden');
+            }, 2000);
+          } catch (err) {
+            console.error('Failed to copy snippet', err);
+          }
+        });
+      }
+
+      // --- 3. Copy Full Page as Markdown Feature ---
+      const copyMdBtn = document.getElementById('copy-markdown-btn');
+      copyMdBtn.addEventListener('click', async () => {
+        const title = "Fix: Failed to fetch (CORS) in Vercel Serverless Functions";
+        const symptom = "Access to fetch at 'https://api.yourdomain.com/data' from origin 'https://frontend.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.";
+        const cureCode = document.getElementById('cure-code-block').textContent;
+        
+        let markdown = `# ${title}\n\n`;
+        markdown += `## The Symptom\n\`${symptom}\`\n\n`;
+        markdown += `## The Cure\n\`\`\`javascript\n${cureCode}\n\`\`\`\n\n`;
+        markdown += `## Developer Logs\n`;
+
+        const commentCards = document.querySelectorAll('.comment-card');
+        if (commentCards.length === 0) {
+          markdown += `*No logs yet.*\n`;
+        } else {
+          commentCards.forEach(card => {
+            const meta = card.querySelector('.comment-meta').textContent;
+            const content = card.querySelector('.comment-content-text').textContent;
+            markdown += `- **${meta}**: ${content}\n`;
+          });
+        }
+
+        try {
+          await navigator.clipboard.writeText(markdown);
+          document.getElementById('md-icon-copy').classList.add('hidden');
+          document.getElementById('md-icon-check').classList.remove('hidden');
+          document.getElementById('md-btn-text').textContent = "Copied to Clipboard!";
+
+          setTimeout(() => {
+            document.getElementById('md-icon-copy').classList.remove('hidden');
+            document.getElementById('md-icon-check').classList.add('hidden');
+            document.getElementById('md-btn-text').textContent = "Copy Page as Markdown";
+          }, 3000);
+        } catch (err) {
+          console.error("Markdown copy failed", err);
+        }
+      });
+
+      // --- 4. CSP-Safe Comments Rendering ---
       const fetchComments = async () => {
         try {
           const response = await fetch(`/api/comments?slug=${DYNAMIC_SLUG}`);
           if (!response.ok) throw new Error('Failed to load');
           
           const comments = await response.json();
-          
-          // 2. CSP / TRUSTED TYPES FIX: Clear container safely
-          commentsContainer.textContent = ''; 
+          commentsContainer.textContent = ''; // Clear safely
 
           if (comments.length === 0) {
             const noLogsText = document.createElement('p');
@@ -210,7 +287,6 @@
             return;
           }
 
-          // Generate elements safely without innerHTML
           comments.forEach(comment => {
             const card = document.createElement('div');
             card.className = 'comment-card';
@@ -221,9 +297,10 @@
             meta.textContent = `${comment.author_name} • ${dateStr}`;
 
             const content = document.createElement('div');
+            content.className = 'comment-content-text';
             content.style.fontSize = '0.9rem';
             content.style.lineHeight = '1.5';
-            content.textContent = comment.content; // textContent bypasses XSS & CSP issues
+            content.textContent = comment.content; // Strict textContent bypasses all CSP/XSS vectors
 
             card.appendChild(meta);
             card.appendChild(content);
@@ -236,6 +313,7 @@
         }
       };
 
+      // --- 5. Submit Comment ---
       commentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         submitBtn.disabled = true;
@@ -243,7 +321,10 @@
 
         const name = document.getElementById('comment-name').value;
         const content = document.getElementById('comment-content').value;
-        const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]').value;
+        
+        // Turnstile fallback check in case script hasn't fully loaded
+        const turnstileInput = document.querySelector('[name="cf-turnstile-response"]');
+        const turnstileResponse = turnstileInput ? turnstileInput.value : '';
 
         try {
           const res = await fetch('/api/comments', {
@@ -254,7 +335,7 @@
 
           if (res.ok) {
             commentForm.reset();
-            turnstile.reset(); 
+            if (typeof turnstile !== 'undefined') turnstile.reset(); 
             await fetchComments();
           } else {
             alert("Failed to submit log. Bot verification failed.");
@@ -267,7 +348,6 @@
         }
       });
 
-      // Fire initial fetch
       fetchComments(); 
     });
   </script>
