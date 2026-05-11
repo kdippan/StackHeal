@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fix: Failed to fetch (CORS) in Vercel Serverless Functions | StackHeal</title>
+  <meta name="description" content="Immediate zero-dependency vanilla JS cure for the 'No Access-Control-Allow-Origin' CORS preflight error in Vercel Serverless and Edge deployments.">
+  
+  <link rel="icon" type="image/svg+xml" href="/favicon/icon.svg">
+  
+  <link rel="canonical" href="https://stackheal.vercel.app/blog/fix-cors-vercel/">
+  <meta property="og:title" content="Fix: Failed to fetch (CORS) in Vercel Serverless Functions | StackHeal">
+  <meta property="og:description" content="Immediate zero-dependency vanilla JS cure for the 'No Access-Control-Allow-Origin' CORS preflight error in Vercel Serverless and Edge deployments.">
+  <meta property="og:image" content="https://stackheal.vercel.app/blog/fix-cors-vercel/ogg/stackheal.png">
+  <meta property="og:url" content="https://stackheal.vercel.app/blog/fix-cors-vercel/">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="alternate" type="text/plain" href="./llms.txt">
+  
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/glassmorphism.css">
+  <link rel="stylesheet" href="/css/code-blocks.css">
+  
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied',
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied'
+    });
+  </script>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-86QMZED8DT"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-86QMZED8DT');
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Fix: Failed to fetch (CORS) in Vercel Serverless Functions",
+    "proficiencyLevel": "Intermediate",
+    "author": {
+      "@type": "Person",
+      "name": "StackHeal Architect",
+      "url": "https://github.com/stackheal"
+    },
+    "mainEntity": {
+      "@type": "Question",
+      "name": "How do I fix the CORS 'Access-Control-Allow-Origin' error in Vercel serverless functions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Explicitly set the Access-Control headers in your serverless response and intercept the HTTP OPTIONS preflight request with a 200 status code before executing your main processing logic."
+      }
+    }
+  }
+  </script>
+
+  <style>
+    /* Scoped Layout adjustments */
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    .global-header { position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-radius: 0; border-top: none; border-left: none; border-right: none; }
+    .brand-logo { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-code); font-weight: 700; font-size: 1.25rem; color: var(--text-primary); text-decoration: none; }
+    .main-article { flex: 1; width: 100%; max-width: 56.25rem; margin: 0 auto; padding: 3rem 1rem; }
+    .breadcrumbs { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 2rem; font-family: var(--font-code); }
+    h1 { font-size: 2rem; color: var(--text-primary); margin-bottom: 2rem; line-height: 1.2; }
+    h2 { font-size: 1.5rem; color: var(--accent-primary); margin: 2.5rem 0 1rem 0; }
+    p { margin-bottom: 1.25rem; line-height: 1.7; }
+    .svg-list { list-style: none; padding: 0; }
+    .svg-list li { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem; }
+    .svg-bullet { flex-shrink: 0; margin-top: 0.25rem; color: var(--accent-primary); }
+    .global-footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border-glass); font-size: 0.875rem; color: var(--text-muted); }
+    
+    /* Comments UI Specifics */
+    .glass-input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); color: var(--text-primary); padding: 0.75rem; border-radius: var(--radius-md); font-family: var(--font-body); }
+    .glass-input:focus { outline: none; border-color: var(--accent-primary); }
+    .comment-card { padding: 1rem; border-bottom: 1px solid var(--border-glass); }
+    .comment-card:last-child { border-bottom: none; }
+    .comment-meta { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-code); margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <header class="glass-panel global-header">
+    <a href="/" class="brand-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+      StackHeal
+    </a>
+    <nav>
+      <a href="/" aria-label="Search Heals" style="color: var(--text-primary);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </a>
+    </nav>
+  </header>
+
+  <main class="main-article">
+    <nav class="breadcrumbs">
+      <a href="/" style="color: inherit; text-decoration: none;">Home</a>
+      <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      <span>Fix: CORS Vercel</span>
+    </nav>
+
+    <article>
+      <h1>Fix: Failed to fetch (CORS) in Vercel Serverless Functions</h1>
+
+      <h2>The Symptom</h2>
+      <p>You deployed a serverless function to Vercel. Your frontend attempts an API fetch, but the browser strictly blocks the response. The network tab shows a failed <code>OPTIONS</code> request, and your terminal throws this policy violation:</p>
+      
+      <div class="alert-symptom glass-panel">
+        <code style="color: var(--status-symptom);">Access to fetch at 'https://api.yourdomain.com/data' from origin 'https://frontend.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.</code>
+      </div>
+
+      <h2>The Cure</h2>
+      <p>The browser is waiting for a preflight approval. Drop this pure vanilla HTTP intercept pattern at the very top of your serverless handler before executing your main processing logic.</p>
+
+      <div class="alert-cure glass-panel">
+        <p style="margin-bottom: 1rem; color: var(--status-cure); font-weight: 600; font-family: var(--font-code);">Immediate Resolution:</p>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span class="language-label">javascript</span>
+            <button class="copy-btn" aria-label="Copy code"></button>
+          </div>
+          <pre><code>export default async function handler(req, res) {
+  // 1. Inject strict CORS headers into the response
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Or specify 'https://yourfrontend.com'
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  // 2. Intercept the OPTIONS preflight request
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  // 3. Main Logic
+  res.status(200).json({ message: "API connected successfully." });
+}</code></pre>
+        </div>
+      </div>
+    </article>
+
+    <section class="glass-panel" style="margin-top: 4rem;">
+      <h3 style="margin-bottom: 1.5rem; color: var(--accent-primary); font-family: var(--font-code);">Developer Logs</h3>
+      
+      <form id="comment-form" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+        <input type="text" id="comment-name" placeholder="Name or GitHub Alias" required class="glass-input">
+        <textarea id="comment-content" placeholder="Suggest a change, point out an edge case, or confirm this healed your stack..." required rows="3" class="glass-input" style="resize: vertical;"></textarea>
+        
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAADNEC3-7QeslpEJl" data-theme="dark"></div>
+        
+        <button type="submit" id="submit-comment-btn" class="glass-btn" style="align-self: flex-start;">Submit Log</button>
+      </form>
+
+      <div id="comments-container" style="display: flex; flex-direction: column;">
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Loading logs...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="global-footer">
+    <p>StackHeal © 2026. The zero-bloat, edge-deployed troubleshooting hub.</p>
+  </footer>
+
+  <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="dippanbhusal" data-description="Support me on Buy me a coffee!" data-message="Support StackHeal !" data-color="#5F7FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/code-copy.js"></script>
+  <script src="/js/cookie-consent.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. DYNAMIC SLUG GENERATION: Grabs the folder name directly from the URL.
+      const pathArray = window.location.pathname.split('/').filter(p => p);
+      const DYNAMIC_SLUG = pathArray.pop() || 'home'; 
+
+      const commentsContainer = document.getElementById('comments-container');
+      const commentForm = document.getElementById('comment-form');
+      const submitBtn = document.getElementById('submit-comment-btn');
+
+      const fetchComments = async () => {
+        try {
+          const response = await fetch(`/api/comments?slug=${DYNAMIC_SLUG}`);
+          if (!response.ok) throw new Error('Failed to load');
+          
+          const comments = await response.json();
+          
+          // 2. CSP / TRUSTED TYPES FIX: Clear container safely
+          commentsContainer.textContent = ''; 
+
+          if (comments.length === 0) {
+            const noLogsText = document.createElement('p');
+            noLogsText.style.color = 'var(--text-muted)';
+            noLogsText.style.fontSize = '0.875rem';
+            noLogsText.textContent = 'No logs found. Be the first to verify this cure.';
+            commentsContainer.appendChild(noLogsText);
+            return;
+          }
+
+          // Generate elements safely without innerHTML
+          comments.forEach(comment => {
+            const card = document.createElement('div');
+            card.className = 'comment-card';
+
+            const meta = document.createElement('div');
+            meta.className = 'comment-meta';
+            const dateStr = new Date(comment.created_at).toLocaleDateString();
+            meta.textContent = `${comment.author_name} • ${dateStr}`;
+
+            const content = document.createElement('div');
+            content.style.fontSize = '0.9rem';
+            content.style.lineHeight = '1.5';
+            content.textContent = comment.content; // textContent bypasses XSS & CSP issues
+
+            card.appendChild(meta);
+            card.appendChild(content);
+            commentsContainer.appendChild(card);
+          });
+        } catch (error) {
+          commentsContainer.textContent = 'Error loading developer logs.';
+          commentsContainer.style.color = 'var(--status-symptom)';
+          commentsContainer.style.fontSize = '0.875rem';
+        }
+      };
+
+      commentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Submitting...';
+
+        const name = document.getElementById('comment-name').value;
+        const content = document.getElementById('comment-content').value;
+        const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]').value;
+
+        try {
+          const res = await fetch('/api/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: DYNAMIC_SLUG, name, content, turnstileToken: turnstileResponse })
+          });
+
+          if (res.ok) {
+            commentForm.reset();
+            turnstile.reset(); 
+            await fetchComments();
+          } else {
+            alert("Failed to submit log. Bot verification failed.");
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Submit Log';
+        }
+      });
+
+      // Fire initial fetch
+      fetchComments(); 
+    });
+  </script>
+</body>
+</html>

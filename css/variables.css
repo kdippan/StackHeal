@@ -1,0 +1,47 @@
+/* /css/variables.css */
+:root {
+  /* Core Colors */
+  --bg-main: #0a0a0c;
+  --bg-surface: rgba(255, 255, 255, 0.03);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --accent-primary: #38bdf8;
+  --accent-hover: #7dd3fc;
+  
+  /* Status Colors */
+  --status-cure: #4ade80;
+  --status-cure-bg: rgba(74, 222, 128, 0.1);
+  --status-symptom: #f87171;
+  --status-symptom-bg: rgba(248, 113, 113, 0.1);
+
+  /* Typography */
+  --text-primary: #f3f4f6;
+  --text-muted: #9ca3af;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', Cascadia Code, monospace;
+
+  /* Glassmorphism Specs */
+  --glass-blur: blur(0.75rem);
+  --glass-shadow: 0 0.5rem 2rem 0 rgba(0, 0, 0, 0.37);
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --border-thick: 0.25rem;
+}
+
+/* Base Reset & Typography */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, code, pre {
+  font-family: var(--font-code);
+}
