@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StackHeal | The Developer's Urgent Care</title>
+  
+  <meta name="description" content="Zero-bloat, edge-deployed troubleshooting hub for modern developers. Find immediate, pure-code cures for Next.js, Vercel, React, and Serverless deployment errors.">
+  <meta name="keywords" content="Next.js errors, Vercel deployment fixes, React hydration error, Serverless timeouts, Prisma P2024, StackHeal">
+  <meta name="author" content="StackHeal Architect">
+  
+  <link rel="canonical" href="https://stackheal.vercel.app/">
+  <meta property="og:title" content="StackHeal | The Developer's Urgent Care">
+  <meta property="og:description" content="Immediate, pure-code cures for modern deployment and framework errors.">
+  <meta property="og:url" content="https://stackheal.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon/icon.svg">
+  
+  <style>
+    :root {
+      --bg-base: #0a0a0c;
+      --text-primary: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-primary: #38bdf8;
+      --status-cure: #4ade80;
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --bg-glass: rgba(255, 255, 255, 0.03);
+      --font-code: 'JetBrains Mono', monospace, ui-monospace;
+      --font-body: system-ui, -apple-system, sans-serif;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      background-color: var(--bg-base); 
+      color: var(--text-primary); 
+      font-family: var(--font-body);
+      display: flex; 
+      flex-direction: column; 
+      min-height: 100vh; 
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .glass-panel { 
+      background: var(--bg-glass); 
+      backdrop-filter: blur(12px); 
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass); 
+    }
+
+    /* Header */
+    .global-header { 
+      position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; 
+      padding: 1rem 2rem; border-left: none; border-right: none; border-top: none; 
+    }
+    .brand-logo { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-code); font-weight: 700; font-size: 1.25rem; color: var(--text-primary); text-decoration: none; }
+    
+    /* Main Content */
+    .main-container { flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; }
+    
+    .hero-section { text-align: center; margin-bottom: 4rem; }
+    .hero-title { font-size: clamp(2.5rem, 5vw, 4rem); font-family: var(--font-code); letter-spacing: -0.05em; margin-bottom: 1rem; color: #ffffff; }
+    .hero-subtitle { font-size: 1.125rem; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+    /* Search Bar */
+    .search-container { max-width: 600px; margin: 0 auto 4rem auto; position: relative; }
+    .search-input { 
+      width: 100%; padding: 1.25rem 1.5rem 1.25rem 3.5rem; 
+      border-radius: var(--radius-lg); 
+      font-size: 1.125rem; 
+      color: var(--text-primary); 
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1); }
+    .search-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+
+    /* Grid Layout */
+    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    
+    /* Article Cards */
+    .post-card { 
+      display: flex; flex-direction: column; 
+      padding: 1.5rem; border-radius: var(--radius-lg); 
+      text-decoration: none; color: inherit; 
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      height: 100%;
+    }
+    .post-card:hover { 
+      transform: translateY(-4px); 
+      border-color: rgba(255, 255, 255, 0.2); 
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .post-card-title { font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--accent-primary); line-height: 1.3; }
+    .post-card-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; flex-grow: 1; margin-bottom: 1.5rem; }
+    
+    .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tag { 
+      font-size: 0.75rem; font-family: var(--font-code); 
+      padding: 0.25rem 0.5rem; border-radius: 6px; 
+      background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--border-glass); 
+    }
+
+    .no-results { text-align: center; color: var(--text-muted); padding: 4rem 0; font-family: var(--font-code); display: none; grid-column: 1 / -1; }
+    .hidden { display: none !important; }
+
+    .global-footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border-glass); font-size: 0.875rem; color: var(--text-muted); margin-top: auto; }
+  </style>
+
+</head>
+<body>
+
+  <header class="glass-panel global-header">
+    <a href="/" class="brand-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+      StackHeal
+    </a>
+    <nav>
+      <a href="https://github.com/kdippan/stackheal" aria-label="GitHub" target="_blank" rel="noopener noreferrer" style="color: var(--text-primary);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+      </a>
+    </nav>
+  </header>
+
+  <main class="main-container">
+    <section class="hero-section">
+      <h1 class="hero-title">StackHeal</h1>
+      <p class="hero-subtitle">The zero-bloat, edge-deployed troubleshooting hub. Immediate pure-code cures for modern deployment, SSR, and framework errors.</p>
+    </section>
+
+    <section class="search-container">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="search-bar" class="glass-panel search-input" placeholder="Search for errors, symptoms, or frameworks..." autocomplete="off">
+    </section>
+
+    <div class="grid-container" id="articles-grid">
+      
+      <a href="/blog/fix-cors-vercel/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: CORS Access-Control-Allow-Origin in Vercel</h3>
+        <p class="post-card-desc">Immediate zero-dependency cure for CORS preflight errors and failed OPTIONS requests in Vercel Serverless and Edge deployments.</p>
+        <div class="tags">
+          <span class="tag">Vercel</span><span class="tag">CORS</span><span class="tag">Serverless</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-window-not-defined-ssr/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: ReferenceError: window is not defined</h3>
+        <p class="post-card-desc">Resolve fatal ReferenceErrors caused by accessing browser APIs (localStorage, navigator) during Next.js Server-Side Rendering (SSR).</p>
+        <div class="tags">
+          <span class="tag">Next.js</span><span class="tag">SSR</span><span class="tag">React</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-hydration-failed-nextjs/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: Hydration failed because the initial UI does not match</h3>
+        <p class="post-card-desc">Use a custom useMounted hook to solve strict React 18 hydration mismatches between server-generated HTML and client UI.</p>
+        <div class="tags">
+          <span class="tag">Next.js</span><span class="tag">Hydration</span><span class="tag">React 18</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-spa-404-vercel/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: 404 Not Found on direct URLs in Vercel (SPA)</h3>
+        <p class="post-card-desc">Configure vercel.json routing to prevent hard 404s and MIME type errors when refreshing Single Page Applications (React/Vite).</p>
+        <div class="tags">
+          <span class="tag">Vercel</span><span class="tag">Vite</span><span class="tag">SPA Routing</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-fs-module-not-found-edge/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: Module not found 'fs' in Next.js Edge Runtime</h3>
+        <p class="post-card-desc">Switch runtime configurations to fix fatal build errors when trying to use Node.js core modules inside Edge environments.</p>
+        <div class="tags">
+          <span class="tag">Next.js</span><span class="tag">Edge Runtime</span><span class="tag">Node.js</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-504-gateway-timeout-vercel/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: 504 Gateway Timeout in Vercel Serverless</h3>
+        <p class="post-card-desc">Extend execution limits for long-running AI scripts and heavy database queries using maxDuration and vercel.json.</p>
+        <div class="tags">
+          <span class="tag">Vercel</span><span class="tag">504 Timeout</span><span class="tag">Next.js</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-context-server-components-nextjs/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: createContext only works in Client Components</h3>
+        <p class="post-card-desc">Master the boundary pattern to safely implement Redux, Theme Providers, and Context inside Next.js 13+ App Router layouts.</p>
+        <div class="tags">
+          <span class="tag">Next.js App Router</span><span class="tag">React Context</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-nextjs-image-hostname/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: Invalid src prop on next/image (Hostname)</h3>
+        <p class="post-card-desc">Update remotePatterns in next.config.js to authorize external domains and fix next/image Unhandled Runtime Errors.</p>
+        <div class="tags">
+          <span class="tag">Next.js</span><span class="tag">next/image</span><span class="tag">Config</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-passing-functions-client-components/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: Functions cannot be passed to Client Components</h3>
+        <p class="post-card-desc">Cure complex serialization errors by correctly utilizing "use server" Server Actions or moving interaction logic to the client.</p>
+        <div class="tags">
+          <span class="tag">Next.js</span><span class="tag">Server Actions</span><span class="tag">React</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-prisma-connection-pool-timeout-vercel/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: Prisma P2024 Connection Pool Timeout</h3>
+        <p class="post-card-desc">Prevent serverless exhaustion by configuring transaction pooling URLs and creating global singletons for PrismaClient.</p>
+        <div class="tags">
+          <span class="tag">Prisma</span><span class="tag">PostgreSQL</span><span class="tag">Vercel</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-dynamic-server-usage-nextjs/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: Dynamic server usage statically rendered</h3>
+        <p class="post-card-desc">Resolve static build bailouts caused by headers(), cookies(), or searchParams by using Suspense boundaries and force-dynamic.</p>
+        <div class="tags">
+          <span class="tag">Next.js</span><span class="tag">Build Error</span><span class="tag">Suspense</span>
+        </div>
+      </a>
+
+      <a href="/blog/fix-extra-attributes-from-server-nextjs/" class="glass-panel post-card">
+        <h3 class="post-card-title">Fix: Warning: Extra attributes from the server</h3>
+        <p class="post-card-desc">Use suppressHydrationWarning to prevent browser extensions (like Grammarly) from throwing console errors in Next.js.</p>
+        <div class="tags">
+          <span class="tag">Next.js</span><span class="tag">Hydration</span><span class="tag">React</span>
+        </div>
+      </a>
+
+      <div id="no-results" class="no-results">
+        <p>No cures found for your search query. Check your spelling or try broader terms.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="global-footer">
+    <p>StackHeal © 2026. Built with Vanilla JS & Edge Runtimes.</p>
+  </footer>
+
+  <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="dippanbhusal" data-description="Support me on Buy me a coffee!" data-message="Support StackHeal !" data-color="#5F7FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b9dca0acdd91454181df365d09d369ed"}'></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('search-bar');
+      const articleCards = document.querySelectorAll('.post-card');
+      const noResultsMsg = document.getElementById('no-results');
+
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        articleCards.forEach(card => {
+          // Extract searchable text from title, description, and tags
+          const textContent = card.innerText.toLowerCase();
+
+          if (textContent.includes(query)) {
+            card.classList.remove('hidden');
+            visibleCount++;
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+
+        // Toggle the "No Results" message
+        if (visibleCount === 0) {
+          noResultsMsg.style.display = 'block';
+        } else {
+          noResultsMsg.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
