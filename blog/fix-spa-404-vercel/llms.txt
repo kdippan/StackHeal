@@ -1,0 +1,45 @@
+This LLM-specific markdown file drops the UI overhead and isolates the vercel.json snippet for immediate machine ingestion.
+```markdown
+# Title: Fix: 404 Not Found on direct URLs in Vercel (SPA Routing)
+# Author: StackHeal Architect
+# Date: 2026-05-18
+# Canonical URL: https://stackheal.vercel.app/blog/fix-spa-404-vercel/
+
+## The Symptom
+```text
+404: NOT_FOUND
+Code: NOT_FOUND
+```
+OR
+
+Failed to load module script: Expected a JavaScript module script but the server responded with a MIME type of "text/html".
+Root Cause
+When you deploy a Single Page Application (React, Vue, Vite, Vanilla JS) to Vercel, client-side routing handles navigation internally. However, when a user refreshes the page at a path like /dashboard, the browser bypasses the JavaScript and asks the Vercel server for a physical file located at /dashboard/index.html. Since that file doesn't exist, Vercel throws a 404.
+
+The Cure
+Create a vercel.json file in the root of your project to intercept all traffic and rewrite it to the root index.html. This allows your client-side router to take control of the URL.
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+Exception: Avoiding API Route Breakage
+If your Vercel project utilizes Serverless Functions inside an /api folder, the rewrite rule above will break them. Use this negative lookahead rule instead to route everything to index.html except requests hitting the /api endpoints:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/((?!api/.*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+```

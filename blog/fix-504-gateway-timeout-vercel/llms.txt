@@ -1,0 +1,40 @@
+# Title: Fix: 504 Gateway Timeout in Vercel Serverless Functions
+# Author: StackHeal Architect
+# Date: 2026-05-24
+# Canonical URL: https://stackheal.vercel.app/blog/fix-504-gateway-timeout-vercel/
+
+## The Symptom
+```text
+504: GATEWAY_TIMEOUT
+Code: FUNCTION_INVOCATION_TIMEOUT
+```
+The serverless function has exceeded its execution limit.
+Root Cause
+Unlike localhost, Vercel kills running serverless functions after a hard time limit to prevent runaway compute costs. By default, Vercel Hobby plan functions timeout after 10 seconds, and Pro plan functions timeout after 15 seconds. Heavy tasks like AI generation or deep database queries frequently exceed this limit.
+
+The Cure (Next.js)
+Export the maxDuration constant at the top of your API route or Server Action to explicitly request a longer execution time.
+
+```javascript
+// Allow this specific route to run for up to 60 seconds
+export const maxDuration = 60; 
+
+export async function POST(request) {
+  const result = await heavyTask();
+  return new Response(JSON.stringify(result), { status: 200 });
+}
+```
+The Cure (Vanilla / vercel.json)
+If you are not using Next.js, define the limits in your vercel.json file at the root of your project:
+
+```json
+{
+  "functions": {
+    "api/long-task.js": {
+      "maxDuration": 60
+    }
+  }
+}
+```
+Constraints
+You can only increase maxDuration up to the limit allowed by your Vercel billing tier (60 seconds for Hobby, up to 300 seconds for Pro). If you require longer than 5 minutes, you must switch your architecture to Edge Functions (with response streaming) or use asynchronous background jobs like Upstash QStash.

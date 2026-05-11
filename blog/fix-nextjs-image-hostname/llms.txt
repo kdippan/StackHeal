@@ -1,0 +1,32 @@
+# Title: Fix: Invalid src prop on next/image (Hostname not configured)
+# Author: StackHeal Architect
+# Date: 2026-06-02
+# Canonical URL: https://stackheal.vercel.app/blog/fix-nextjs-image-hostname/
+
+## The Symptom
+```text
+Unhandled Runtime Error
+Error: Invalid src prop ([https://images.unsplash.com/photo-123](https://images.unsplash.com/photo-123)) on `next/image`, hostname "images.unsplash.com" is not configured under images in your `next.config.js`
+Root Cause
+Unlike a standard HTML <img> tag, the Next.js <Image /> component intercepts requests to dynamically resize and optimize the image format (to WebP/AVIF) directly on your server or Edge network. To prevent malicious actors from feeding your server massive files to cause Denial of Wallet or Server crashes, Next.js strictly requires you to explicitly whitelist any external domain you plan to pull images from.
+
+The Cure
+Open your next.config.js or next.config.mjs file and add the target domain to the remotePatterns configuration array.
+
+JavaScript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com', // Replace with the external domain you are fetching from
+        port: '',
+        pathname: '/**', // Allows any path under this domain
+      }
+    ],
+  },
+};
+
+module.exports = nextConfig;
+Crucial Note: Because this is a core configuration change, it will not be picked up by Fast Refresh. You must stop your local Node.js development server (CTRL + C) and restart it (npm run dev) for the whitelist to be applied.

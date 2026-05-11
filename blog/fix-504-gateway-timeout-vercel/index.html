@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fix: 504 Gateway Timeout in Vercel Serverless Functions | StackHeal</title>
+  
+  <meta name="description" content="Immediate pure-code cure for 504 Gateway Timeout and execution limit errors in Vercel Serverless Functions and Next.js API routes.">
+  <meta name="keywords" content="504 Gateway Timeout, Vercel timeout, serverless function execution limit, maxDuration Next.js, Vercel 10s limit, API timeout fix">
+  <meta name="author" content="StackHeal Architect">
+  
+  <link rel="canonical" href="https://stackheal.vercel.app/blog/fix-504-gateway-timeout-vercel/">
+  <meta property="og:title" content="Fix: 504 Gateway Timeout in Vercel Serverless Functions | StackHeal">
+  <meta property="og:description" content="Immediate cure for 504 Gateway Timeout and execution limit errors in Vercel.">
+  <meta property="og:image" content="https://stackheal.vercel.app/blog/fix-504-gateway-timeout-vercel/ogg/stackheal.png">
+  <meta property="og:url" content="https://stackheal.vercel.app/blog/fix-504-gateway-timeout-vercel/">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="alternate" type="text/plain" href="./llms.txt">
+  
+  <link rel="icon" type="image/svg+xml" href="/favicon/icon.svg">
+  
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/glassmorphism.css">
+  <link rel="stylesheet" href="/css/code-blocks.css">
+  
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Fix: 504 Gateway Timeout in Vercel Serverless Functions",
+    "proficiencyLevel": "Intermediate",
+    "author": {
+      "@type": "Person",
+      "name": "StackHeal Architect",
+      "url": "https://github.com/stackheal"
+    },
+    "datePublished": "2026-05-24",
+    "mainEntity": {
+      "@type": "Question",
+      "name": "How do I fix the 504 Gateway Timeout error on Vercel API routes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Export the maxDuration config variable in your Next.js route, or define the maxDuration property in your vercel.json file to extend the execution limit beyond the default 10-15 seconds."
+      }
+    }
+  }
+  </script>
+
+  <style>
+    /* Layout Scoping */
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    .global-header { position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-radius: 0; border-top: none; border-left: none; border-right: none; }
+    .brand-logo { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-code); font-weight: 700; font-size: 1.25rem; color: var(--text-primary); text-decoration: none; }
+    .main-article { flex: 1; width: 100%; max-width: 56.25rem; margin: 0 auto; padding: 3rem 1rem; }
+    .breadcrumbs { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 2rem; font-family: var(--font-code); }
+    h1 { font-size: 2rem; color: var(--text-primary); margin-bottom: 1rem; line-height: 1.2; }
+    h2 { font-size: 1.5rem; color: var(--accent-primary); margin: 2.5rem 0 1rem 0; }
+    p { margin-bottom: 1.25rem; line-height: 1.7; }
+    .svg-list { list-style: none; padding: 0; }
+    .svg-list li { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem; }
+    .svg-bullet { flex-shrink: 0; margin-top: 0.25rem; color: var(--accent-primary); }
+    .global-footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border-glass); font-size: 0.875rem; color: var(--text-muted); }
+    
+    /* Input & Comments */
+    .glass-input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); color: var(--text-primary); padding: 0.75rem; border-radius: var(--radius-md); font-family: var(--font-body); }
+    .glass-input:focus { outline: none; border-color: var(--accent-primary); }
+    .comment-card { padding: 1rem; border-bottom: 1px solid var(--border-glass); }
+    .comment-card:last-child { border-bottom: none; }
+    .comment-meta { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-code); margin-bottom: 0.5rem; }
+    
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <header class="glass-panel global-header">
+    <a href="/" class="brand-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+      StackHeal
+    </a>
+    <nav>
+      <a href="/" aria-label="Search Heals" style="color: var(--text-primary);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </a>
+    </nav>
+  </header>
+
+  <main class="main-article">
+    <nav class="breadcrumbs">
+      <a href="/" style="color: inherit; text-decoration: none;">Home</a>
+      <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      <span>Fix: Vercel 504 Timeout</span>
+    </nav>
+
+    <article>
+      <h1>Fix: 504 Gateway Timeout in Vercel Serverless Functions</h1>
+      
+      <div style="margin-bottom: 2.5rem;">
+        <button id="copy-markdown-btn" class="glass-btn" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+          <svg id="md-icon-copy" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg id="md-icon-check" class="hidden" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="var(--status-cure)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span id="md-btn-text">Copy Page as Markdown</span>
+        </button>
+      </div>
+
+      <h2>The Symptom</h2>
+      <p>Your API route (like an AI generation script, email sender, or heavy database query) works perfectly on your local machine. However, when deployed to Vercel, the browser hangs for exactly 10 to 15 seconds before crashing with this error:</p>
+      
+      <div class="alert-symptom glass-panel">
+        <code style="color: var(--status-symptom);">504: GATEWAY_TIMEOUT<br>Code: FUNCTION_INVOCATION_TIMEOUT<br><br>The serverless function has exceeded its execution limit.</code>
+      </div>
+
+      <h2>The Cure</h2>
+      <p>Vercel places strict execution time limits on Serverless Functions to prevent runaway costs. You must explicitly request a longer execution time (up to your plan's maximum allowed limit).</p>
+
+      <div class="alert-cure glass-panel">
+        <p style="margin-bottom: 1rem; color: var(--status-cure); font-weight: 600; font-family: var(--font-code);">Cure 1: Next.js App Router & API Routes</p>
+        <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">Export the <code>maxDuration</code> constant at the top of your specific route file.</p>
+        <div class="code-container">
+          <div class="code-header">
+            <span class="language-label">javascript (route.js / api.js)</span>
+            <button class="copy-btn snippet-copy-btn" aria-label="Copy code">
+              <svg class="snippet-icon-copy" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <svg class="snippet-icon-check hidden" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="var(--status-cure)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </button>
+          </div>
+          <pre><code id="cure-code-block-1">// Allow this specific route to run for up to 60 seconds
+export const maxDuration = 60; 
+
+export async function POST(request) {
+  // Your long-running AI task or heavy DB query here
+  const result = await heavyTask();
+  return new Response(JSON.stringify(result), { status: 200 });
+}</code></pre>
+        </div>
+
+        <p style="margin-top: 1.5rem; margin-bottom: 1rem; color: var(--status-cure); font-weight: 600; font-family: var(--font-code);">Cure 2: Pure Vanilla / vercel.json</p>
+        <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">If you are not using Next.js, define the limits in your <code>vercel.json</code> file at the root of your project.</p>
+        <div class="code-container">
+          <div class="code-header">
+            <span class="language-label">json (vercel.json)</span>
+            <button class="copy-btn snippet-copy-btn" aria-label="Copy code">
+              <svg class="snippet-icon-copy" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <svg class="snippet-icon-check hidden" xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="var(--status-cure)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </button>
+          </div>
+          <pre><code id="cure-code-block-2">{
+  "functions": {
+    "api/long-task.js": {
+      "maxDuration": 60
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+
+      <h2>The Breakdown</h2>
+      <p>Localhost does not have a hard timeout. A script can run for 5 minutes locally without failing. Vercel, however, kills hanging serverless functions to free up compute resources based on your billing tier:</p>
+      
+      <ul class="svg-list">
+        <li>
+          <svg class="svg-bullet" xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span><strong>Hobby Plan:</strong> Default 10s. Maximum limit you can request is <strong>10s</strong> (in older versions) or <strong>60s</strong> (in updated 2024+ limits).</span>
+        </li>
+        <li>
+          <svg class="svg-bullet" xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span><strong>Pro Plan:</strong> Default 15s. Maximum limit you can request is <strong>300s (5 minutes)</strong>.</span>
+        </li>
+      </ul>
+      <p>If you set <code>maxDuration = 300</code> while on the Hobby tier, your Vercel deployment will fail during the build process.</p>
+
+      <h2>Prevention & Advanced Architectures</h2>
+      <p>If your task regularly exceeds 60 seconds (like processing large video files or heavy AI generation), standard Serverless Functions are the wrong architecture. Consider these alternatives:</p>
+      <ul class="svg-list">
+        <li>
+          <svg class="svg-bullet" xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span><strong>Streaming (Edge Runtime):</strong> If using AI (like OpenAI), switch your route to <code>export const runtime = 'edge'</code> and stream the response. Streaming keeps the connection alive indefinitely, bypassing the 504 timeout error.</span>
+        </li>
+        <li>
+          <svg class="svg-bullet" xmlns="http://www.w3.org/2000/svg" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span><strong>Background Jobs:</strong> Offload the task using a message queue like Upstash QStash, or use Vercel's <code>after()</code> hook, so your API route instantly returns a 200 OK while the heavy lifting happens asynchronously.</span>
+        </li>
+      </ul>
+
+    </article>
+
+    <section class="glass-panel" style="margin-top: 4rem;">
+      <h3 style="margin-bottom: 1.5rem; color: var(--accent-primary); font-family: var(--font-code);">Developer Logs</h3>
+      
+      <form id="comment-form" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+        <input type="text" id="comment-name" placeholder="Name or GitHub Alias" required class="glass-input">
+        <textarea id="comment-content" placeholder="Suggest a change, point out an edge case, or confirm this healed your stack..." required rows="3" class="glass-input" style="resize: vertical;"></textarea>
+        
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAADNEC3-7QeslpEJl" data-theme="dark"></div>
+        
+        <button type="submit" id="submit-comment-btn" class="glass-btn" style="align-self: flex-start;">Submit Log</button>
+      </form>
+
+      <div id="comments-container" style="display: flex; flex-direction: column;">
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Loading logs...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="global-footer">
+    <p>StackHeal © 2026. The zero-bloat, edge-deployed troubleshooting hub.</p>
+  </footer>
+
+  <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="dippanbhusal" data-description="Support me on Buy me a coffee!" data-message="Support StackHeal !" data-color="#5F7FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+
+  <script src="/js/theme.js"></script>
+
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b9dca0acdd91454181df365d09d369ed"}'></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Dynamic Post Slug ---
+      const pathArray = window.location.pathname.split('/').filter(p => p);
+      const DYNAMIC_SLUG = pathArray.pop() || 'fix-504-gateway-timeout-vercel'; 
+
+      const commentsContainer = document.getElementById('comments-container');
+      const commentForm = document.getElementById('comment-form');
+      const submitBtn = document.getElementById('submit-comment-btn');
+
+      // --- CSP-Safe Snippet Copy (Handles multiple code blocks) ---
+      const copyButtons = document.querySelectorAll('.snippet-copy-btn');
+      copyButtons.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const codeContainer = e.currentTarget.closest('.code-container');
+          const codeText = codeContainer.querySelector('code').textContent;
+          try {
+            await navigator.clipboard.writeText(codeText);
+            btn.querySelector('.snippet-icon-copy').classList.add('hidden');
+            btn.querySelector('.snippet-icon-check').classList.remove('hidden');
+
+            setTimeout(() => {
+              btn.querySelector('.snippet-icon-copy').classList.remove('hidden');
+              btn.querySelector('.snippet-icon-check').classList.add('hidden');
+            }, 2000);
+          } catch (err) {
+            console.error('Failed to copy', err);
+          }
+        });
+      });
+
+      // --- Copy Full Page as Markdown ---
+      const copyMdBtn = document.getElementById('copy-markdown-btn');
+      copyMdBtn.addEventListener('click', async () => {
+        const title = "Fix: 504 Gateway Timeout in Vercel Serverless Functions";
+        const symptom = "504: GATEWAY_TIMEOUT\nCode: FUNCTION_INVOCATION_TIMEOUT\n\nThe serverless function has exceeded its execution limit.";
+        const cureCode1 = document.getElementById('cure-code-block-1').textContent;
+        const cureCode2 = document.getElementById('cure-code-block-2').textContent;
+        
+        let markdown = `# ${title}\n\n`;
+        markdown += `## The Symptom\n\`\`\`text\n${symptom}\n\`\`\`\n\n`;
+        markdown += `## The Cure (Next.js)\n\`\`\`javascript\n${cureCode1}\n\`\`\`\n\n`;
+        markdown += `## The Cure (vercel.json)\n\`\`\`json\n${cureCode2}\n\`\`\`\n\n`;
+        markdown += `## Developer Logs\n`;
+
+        const commentCards = document.querySelectorAll('.comment-card');
+        if (commentCards.length === 0) {
+          markdown += `*No logs yet.*\n`;
+        } else {
+          commentCards.forEach(card => {
+            const meta = card.querySelector('.comment-meta').textContent;
+            const content = card.querySelector('.comment-content-text').textContent;
+            markdown += `- **${meta}**: ${content}\n`;
+          });
+        }
+
+        try {
+          await navigator.clipboard.writeText(markdown);
+          document.getElementById('md-icon-copy').classList.add('hidden');
+          document.getElementById('md-icon-check').classList.remove('hidden');
+          document.getElementById('md-btn-text').textContent = "Copied to Clipboard!";
+
+          setTimeout(() => {
+            document.getElementById('md-icon-copy').classList.remove('hidden');
+            document.getElementById('md-icon-check').classList.add('hidden');
+            document.getElementById('md-btn-text').textContent = "Copy Page as Markdown";
+          }, 3000);
+        } catch (err) {
+          console.error("Markdown copy failed", err);
+        }
+      });
+
+      // --- CSP-Safe Comments Rendering ---
+      const fetchComments = async () => {
+        try {
+          const response = await fetch(`/api/comments?slug=${DYNAMIC_SLUG}`);
+          if (!response.ok) throw new Error('Failed to load');
+          
+          const comments = await response.json();
+          commentsContainer.textContent = ''; 
+
+          if (comments.length === 0) {
+            const noLogsText = document.createElement('p');
+            noLogsText.style.color = 'var(--text-muted)';
+            noLogsText.style.fontSize = '0.875rem';
+            noLogsText.textContent = 'No logs found. Be the first to verify this cure.';
+            commentsContainer.appendChild(noLogsText);
+            return;
+          }
+
+          comments.forEach(comment => {
+            const card = document.createElement('div');
+            card.className = 'comment-card';
+
+            const meta = document.createElement('div');
+            meta.className = 'comment-meta';
+            const dateStr = new Date(comment.created_at).toLocaleDateString();
+            meta.textContent = `${comment.author_name} • ${dateStr}`;
+
+            const content = document.createElement('div');
+            content.className = 'comment-content-text';
+            content.style.fontSize = '0.9rem';
+            content.style.lineHeight = '1.5';
+            content.textContent = comment.content;
+
+            card.appendChild(meta);
+            card.appendChild(content);
+            commentsContainer.appendChild(card);
+          });
+        } catch (error) {
+          commentsContainer.textContent = 'Error loading developer logs.';
+          commentsContainer.style.color = 'var(--status-symptom)';
+          commentsContainer.style.fontSize = '0.875rem';
+        }
+      };
+
+      // --- Submit Comment ---
+      commentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Submitting...';
+
+        const name = document.getElementById('comment-name').value;
+        const content = document.getElementById('comment-content').value;
+        const turnstileInput = document.querySelector('[name="cf-turnstile-response"]');
+        const turnstileResponse = turnstileInput ? turnstileInput.value : '';
+
+        try {
+          const res = await fetch('/api/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: DYNAMIC_SLUG, name, content, turnstileToken: turnstileResponse })
+          });
+
+          if (res.ok) {
+            commentForm.reset();
+            if (typeof turnstile !== 'undefined') turnstile.reset(); 
+            await fetchComments();
+          } else {
+            alert("Failed to submit log. Bot verification failed.");
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Submit Log';
+        }
+      });
+
+      fetchComments(); 
+    });
+  </script>
+</body>
+</html>

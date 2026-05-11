@@ -1,0 +1,35 @@
+# Title: Fix: Module not found 'fs' in Next.js Edge Runtime
+# Author: StackHeal Architect
+# Date: 2026-05-20
+# Canonical URL: https://stackheal.vercel.app/blog/fix-fs-module-not-found-edge/
+
+## The Symptom
+```text
+Module not found: Can't resolve 'fs'
+OR
+Error: The Edge Runtime does not support Node.js 'fs' module.
+Root Cause
+Vercel and Next.js offer two separate server environments: the standard Node.js runtime and the Edge Runtime. The Edge Runtime is a stripped-down, ultra-fast V8 engine that runs on global CDNs. Because it runs on the edge, it does not have access to a physical hard drive. Attempting to import any native Node OS library (like fs, path, or child_process) will cause a fatal compiler error.
+
+The Cure
+If your code relies on the filesystem, you must switch the route's runtime configuration from edge back to the standard nodejs environment.
+
+Add this export to the very top of your Next.js API Route or Server Component:
+```
+```javascript
+import fs from 'fs';
+import path from 'path';
+
+// 1. Force the standard Node.js runtime
+export const runtime = 'nodejs'; 
+
+export async function GET(request) {
+  // 2. You can now safely use 'fs' to read local files
+  const filePath = path.join(process.cwd(), 'data', 'config.json');
+  const fileContents = fs.readFileSync(filePath, 'utf8');
+  
+  return new Response(fileContents, { status: 200 });
+}
+```
+Exception: Next.js Middleware
+Next.js middleware.js files only support the Edge Runtime. You cannot use export const runtime = 'nodejs' in middleware. If you need standard libraries like Crypto or need to read configs, you must replace Node modules with native Web APIs (e.g., using crypto.randomUUID() instead of the Node crypto library, or using fetch() instead of fs.readFile()).

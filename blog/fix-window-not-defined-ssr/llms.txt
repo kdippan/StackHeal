@@ -1,0 +1,24 @@
+# Title: Fix: ReferenceError: window is not defined
+# Author: StackHeal Architect
+# Date: 2026-05-12
+# Canonical URL: https://stackheal.vercel.app/blog/fix-window-not-defined-ssr/
+
+## The Symptom
+ReferenceError: window is not defined
+  at eval (webpack-internal:///./components/ThemeToggle.js:14:22)
+
+## Root Cause
+Modern frameworks generate the initial HTML on a server (Node.js or Edge Runtime) before sending it to the user. The `window`, `document`, and `localStorage` objects only exist inside a user's web browser. When the server tries to read your file and hits the word `window`, it throws a fatal ReferenceError.
+
+## The Cure (Vanilla JS)
+Wrap the logic in a type check to tell the server to skip the execution block.
+
+```javascript
+// Provide a safe server fallback
+let userTheme = 'dark'; 
+
+if (typeof window !== 'undefined') {
+  // This block is completely ignored by the server.
+  // It only executes once it hits the client's browser.
+  userTheme = window.localStorage.getItem('theme') || 'dark';
+}

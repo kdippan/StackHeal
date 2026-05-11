@@ -1,0 +1,50 @@
+# Title: Fix: React Context is unavailable in Server Components
+# Author: StackHeal Architect
+# Date: 2026-05-28
+# Canonical URL: https://stackheal.vercel.app/blog/fix-context-server-components-nextjs/
+
+## The Symptom
+```text
+Error: createContext only works in Client Components. Add the "use client" directive at the top of the file to use it.
+Root Cause
+In the Next.js App Router (Next 13+), all components are Server Components by default. React Context (createContext, useContext) is an interactive browser API that requires constant re-renders. The server cannot handle browser state. Therefore, wrapping your root layout.tsx directly in a Provider causes a fatal compilation error.
+
+The Cure
+You must use the "Boundary Pattern." Isolate your context provider into a separate file marked with "use client", and then import that wrapper into your server-rendered layout.tsx.
+
+Step 1: Create the Client Wrapper
+```TypeScript
+// components/ThemeProvider.tsx
+"use client"; 
+
+import { createContext } from 'react';
+
+export const ThemeContext = createContext({});
+
+export default function ThemeProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeContext.Provider value={{ theme: 'dark' }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+Step 2: Import into Server Layout
+Do NOT add "use client" to layout.tsx. Keep it as a Server Component for SEO. Passing {children} inside the client provider allows nested routes to remain server-rendered.
+
+```TypeScript
+// app/layout.tsx
+import ThemeProvider from '@/components/ThemeProvider';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
